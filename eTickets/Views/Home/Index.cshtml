@@ -1,0 +1,114 @@
+﻿@model IEnumerable<Movie>
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+<div class="container p-3">
+    <div class="container">
+        <div class="row">
+            <div class="text-center">
+                <div class="">
+                    <div class="rounded">
+                        <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="true">
+                            <div class="carousel-indicators">
+                                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="3" aria-label="Slide 4"></button>
+                            </div>
+                            <div class="carousel-inner">
+                                <div class="carousel-item active">
+                                    <img src="https://static1.colliderimages.com/wordpress/wp-content/uploads/2021/09/john-wick-4.jpg" class="d-block w-100"  style="height: 700px ;width: 1400px; ">
+                                </div> 
+                                <div class="carousel-item">
+                                    <img src="https://images.thedirect.com/media/article_full/guardians-of-the-galalxy-vol-3-star-lord-gamora-mcu-james-gunn_zy9QmOc.jpg"   style="height: 700px ;width: 1400px; ">
+                                </div>     
+                                <div class="carousel-item">
+                                    <img src="https://static.metacritic.com/images/products/movies/9/87cafaef5b310285c38bbf8d9c3131ea.jpg"  style="height: 700px ;width: 1400px; ">
+                                </div>
+                                 <div class="carousel-item">
+                                    <img src="https://lumiere-a.akamaihd.net/v1/images/p_aladdin2019_17638_d53b09e6.jpeg"  style="height: 700px ;width: 1400px; ">  
+                                </div>
+                            </div>
+                                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Previous</span>
+                                    </button>
+                                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Next</span>
+                                    </button>
+                                </div>
+                            </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+ 
+<div class="row py-2">
+    <div class="text-center text-nowrap">
+            <p class="text-primary  text-uppercase h3 text-monospace">Now Playing</p>
+        </div>
+        @foreach (var item in Model)
+        {
+            @if (DateTime.Now >= item.StartDate && DateTime.Now <= item.EndDate)
+            {
+                <div class="col-md-3 col-xs-6">
+                    <div class="card">
+                        <a asp-controller="Movies" asp-action="Details" asp-route-id="@item.Id">
+                            <img class="card-img-top" src="@item.ImageURL" alt="">
+                        </a>
+                    
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <h4 class="card-title text-monospace">@item.Name</h4>
+                                <a asp-controller="Movies" asp-action="Details" asp-route-id="@item.Id" class="card-link text-monospace">Read More</a>
+                                @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                                {
+                                    <a asp-controller="Movies" asp-action="Edit" asp-route-id="@item.Id" class="card-link"> <i class="bi bi-pencil-square"></i> Edit</a>
+                                }
+                            </div>
+                            
+
+                        </div>
+                    </div>
+                </div>
+               
+            }
+    
+        }
+</div>
+
+<div class="row py-2">
+    <div class="text-center">
+        <p class="text-info text-uppercase h3 text-monospace text-nowrap">Coming Soon</p>
+    </div>
+    @foreach (var item in Model)
+    {
+        @if (DateTime.Now <= item.StartDate)
+        {
+            <div class="col-md-3 col-xs-6">
+                <div class="card">
+                    <a asp-controller="Movies" asp-action="Details" asp-route-id="@item.Id">
+                        <img class="card-img-top" src="@item.ImageURL" alt="Bologna">
+                    </a>
+                    
+                    <div class="card-body">
+                        <h4 class="card-title">@item.Name</h4>
+                        <a asp-controller="Movies" asp-action="Details" asp-route-id="@item.Id" class="card-link">Read More</a>
+                        @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                        {
+                            <a asp-controller="Movies" asp-action="Edit" asp-route-id="@item.Id" class="card-link"> <i class="bi bi-pencil-square"></i> Edit</a>
+                        }
+                        
+                    </div>
+                </div>
+            </div>
+            
+        }
+
+    }
+</div>

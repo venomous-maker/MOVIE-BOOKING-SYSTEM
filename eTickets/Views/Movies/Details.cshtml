@@ -1,0 +1,258 @@
+﻿@model Movie
+
+@{
+    ViewData["Title"] = "Movie details";
+}
+
+
+
+<section style="background-color: #eee;">
+  <div class="container py-5">
+    <div class="row">
+      <div class="col">
+        <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
+          <ol class="breadcrumb mb-0">
+              <li class="breadcrumb-item"><a asp-controller="Movies" asp-action="Index">Movies</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.Name</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+
+      <div class="row">
+          <div class="col-lg-4">
+              <div class="card mb-4">
+                  <div class="card-body text-center">
+                      <img src="@Model.ImageURL"  alt="avatar"
+                           class="rounded-circle img-fluid d-block mx-auto mb-3" style="width: 150px; height: 150px;">
+                      <h5 class="my-3">@Model.Name</h5>
+                      <p class="text-muted mb-1">@Model.Description</p>
+                  </div>
+              </div>
+              
+          </div>
+          <div class="col-lg-8">
+              <div class="card mb-4">
+                  <div class="card-body">
+                      <div class="row">
+                          <div class="col-sm-3">
+                              <p class="mb-0">Name:</p>
+                          </div>
+                          <div class="col-sm-9">
+                              <p class="text-muted mb-0">@Model.Name</p>
+                          </div>
+                      </div>
+                      <hr>
+                      <div class="row">
+                          <div class="col-sm-3">
+                              <p class="mb-0">Category:</p>
+                          </div>
+                          <div class="col-sm-9">
+                              <p class="text-muted mb-0">@Model.MovieCategory</p>
+                          </div>
+                      </div>
+                      <hr>
+                      <div class="row">
+                          <div class="col-sm-3">
+                              <p class="mb-0">End Date:</p>
+                          </div>
+                          <div class="col-sm-9">
+                              <p class="text-muted mb-0">@Model.EndDate.ToString("MM/dd/yyyy")</p>
+                          </div>
+                      </div>
+                      <hr>
+                      <div class="row">
+                          <div class="col-sm-3">
+                              <p class="mb-0">Status:</p>
+                          </div>
+                          <div class="col-sm-9">
+                              @if (DateTime.Now >= Model.StartDate && DateTime.Now <= Model.EndDate)
+                              {
+                                  <span class="badge bg-success text-white">AVAILABLE</span>
+                              }
+                              else if (DateTime.Now > Model.EndDate)
+                              {
+                                  <span class="badge bg-danger text-white">EXPIRED</span>
+                              }
+                              else
+                              {
+                                  <span class="badge bg-primary text-white">UPCOMING</span>
+                              }
+                    
+                          </div>
+                      </div>
+                      <hr>
+                      <button id="read-more-btn" onclick="toggleReadMore()" class="btn btn-sm btn-primary">Show More</button>
+                      
+                  </div>
+              </div>
+              <div id="read" style="display: none">
+                  <div class="row" >
+                                    @foreach (var actor in Model.Actors_Movies)
+                                    {
+                                        <div class="col-lg-2">
+                                            <div class="card mb-4 mb-md-0">
+                                                <div class="card-body text-center">
+                                                    <img src="@actor.Actor.ProfilePictureURL" alt="avatar"
+                                                         class="rounded-circle img-fluid" style="width: 150px;">
+                                                    <h5 class="my-3">@actor.Actor.FullName</h5>
+                                            
+                                                    <div class="d-flex justify-content-center mb-2">
+                                                        <a  asp-controller="Actors" asp-action="Details" asp-route-id="@actor.ActorId"  class="btn btn-outline-primary ms-1">More</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+              </div>
+              
+          </div>
+      </div>
+       @if (DateTime.Now < Model.StartDate)
+      {
+          <div class="alert alert-info mt-2">
+              <p class="h2">The movie is not curretly available</p>
+          </div>
+          
+      }
+       else if (DateTime.Now > Model.EndDate)
+       {
+           <div class="alert alert-info mt-2">
+               <p class="h2">The movie is not curretly available</p>
+           </div>
+       }
+       else
+       {
+            <div class="card mb-3 mt-3">
+               <div class="card-title" id="selectedDate">
+                   Selected Date @DateTime.Today.ToString("MM/dd/yyyy")
+               </div>
+                <div class="row">
+                    <div class="col-md-12">
+                         @for (int i = 0; i < 7; i++)
+                            {
+                                DateTime currentDate = DateTime.Today.AddDays(i);
+                                if (currentDate >= Model.StartDate && currentDate <= Model.EndDate || currentDate.ToString("MM/dd/yyyy") == Model.StartDate.ToString("MM/dd/yyyy"))
+                                {
+                                    <a class="btn btn-outline-primary dayBtn">@currentDate.ToString("MM/dd/yyyy")</a>
+                                }
+                            }
+                    </div>
+                   
+                </div>
+           </div>
+       }
+     
+      @foreach (var cinema in Model.MovieCinemas)
+      {
+          @if (DateTime.Now > Model.EndDate)
+          {
+              <p class="h2">The movie is not curretly available</p>
+          }
+          else
+          {
+             
+              <div >
+                  
+
+                  <div class="card mb-3" style="max-height: 150px">
+                      <div class="row g-0">
+                          <div class="col-md-2">
+                              <img src="@cinema.Cinema.Logo" class="img-fluid rounded-start" alt="..." style="max-height: 150px">
+                          </div>
+                          <div class="col-md-8">
+                              <div class="card-body">
+                                  <a class="card-title" asp-controller="Cinemas" asp-action="Details" asp-route-id="@cinema.CinemaId">@cinema.Cinema.Name</a>
+                                  <p class="card-text">@cinema.Cinema.Description</p>
+
+                                  <div class="column text-center timeDiv" style="" id="time">
+                                      <p class="card-text">
+                                          <a class="btn btn-primary btn-sm timeBtn" asp-controller="BookTiming" asp-action="Index" asp-route-time="10-1" asp-route-id="@Model.Id" asp-route-price="@Model.Price.ToString("c")" asp-route-seats="@cinema.Cinema.NumberOfSeats" asp-route-cinemaID="@cinema.CinemaId">10AM-1PM</a>
+                                          <a class="btn btn-primary btn-sm timeBtn" asp-controller="BookTiming" asp-action="Index" asp-route-time="1-3" asp-route-id="@Model.Id" asp-route-price="@Model.Price.ToString("c")" asp-route-seats="@cinema.Cinema.NumberOfSeats" asp-route-cinemaID="@cinema.CinemaId">1PM-3PM</a>
+                                          <a class="btn btn-primary btn-sm timeBtn" asp-controller="BookTiming" asp-action="Index" asp-route-time="3-5" asp-route-id="@Model.Id" asp-route-price="@Model.Price.ToString("c")" asp-route-seats="@cinema.Cinema.NumberOfSeats" asp-route-cinemaID="@cinema.CinemaId">3PM-5PM</a>
+
+                                      </p>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          }
+          
+      }
+       <div class="col-md-12">
+           <div class="card-footer">
+               <p class="card-text">
+                   <a class="btn btn-outline-primary float-right" asp-action="Index">
+                       Back to MOvies
+                   </a>
+               </p>
+           </div>
+       </div>
+  </div>
+</section>
+
+<script>
+function toggleReadMore() {
+  let readMoreDiv = document.getElementById("read");
+  let readMoreBtn = document.getElementById("read-more-btn");
+  if (readMoreDiv.style.display === "none") {
+    readMoreDiv.style.display = "block";
+    readMoreBtn.innerHTML = "Read Less";
+  } else {
+    readMoreDiv.style.display = "none";
+    readMoreBtn.innerHTML = "Read More";
+  }
+}
+const daysBtn = document.querySelectorAll(".dayBtn")
+
+const time = document.getElementById("time")
+const timeDiv = document.querySelectorAll(".timeDiv")
+const timeBtn = document.querySelectorAll(".timeBtn")
+const selectedDate = document.getElementById("selectedDate")
+
+var today = new Date();
+var mm = today.getMonth() + 1; // January is 0
+var dd = today.getDate();
+var yyyy = today.getFullYear();
+if (mm < 10) {
+    mm = '0' + mm;
+}
+if (dd < 10) {
+    dd = '0' + dd;
+}
+let DateValue = mm + '/' + dd + '/' + yyyy;
+
+daysBtn.forEach((btn) => {  
+    btn.classList.remove("btn-primary")
+    if (DateValue === btn.textContent.trim())
+        {
+            btn.classList.add("btn-primary")
+        }
+    DateValue = btn.textContent.trim() 
+    btn.addEventListener("click", (e) => {   
+        selectedDate.innerText = "Selected Date: "+ btn.textContent.trim()
+        btn.classList.remove("btn-primary")
+        e.preventDefault()
+         DateValue = btn.textContent.trim()        
+        //day.style.display = "none"
+       timeDiv.forEach((tm) => {
+           tm.style.display = "block"
+       })
+        btn.classList.add("btn-primary")
+        //time.style.display = "block" 
+    })
+     
+})
+
+
+timeBtn.forEach((time) => {    
+    time.href += "&day="+DateValue   
+})  
+
+
+
+
+</script>

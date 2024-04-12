@@ -1,0 +1,216 @@
+﻿
+<div class="card">
+                <div class="card-header">
+                    Get Discount On Movies
+                </div>
+                <div class="card-body">
+                    <div id="quiz">
+                       <p id="question"></p>
+                       <div id="answers"></div>
+                       <button class="btn btn-primary" id="next-button">Next</button>
+                      </div>
+                </div>
+            </div>
+<script>
+// Define an array with the quiz questions and their possible answers
+        const quizQuestions = [
+          {
+            question: "What year was the movie 'The Godfather' released?",
+            answers: [
+              { text: "1968", correct: false },
+              { text: "1972", correct: true },
+              { text: "1980", correct: false },
+              { text: "1990", correct: false },
+            ],
+          },
+          {
+            question: "Who played the character of Neo in the movie 'The Matrix'?",
+            answers: [
+              { text: "Keanu Reeves", correct: true },
+              { text: "Tom Cruise", correct: false },
+              { text: "Brad Pitt", correct: false },
+              { text: "Leonardo DiCaprio", correct: false },
+            ],
+          },
+          {
+            question: "What is the name of the main character in the movie 'Forrest Gump'?",
+            answers: [
+              { text: "Tom Hanks", correct: false },
+              { text: "Forrest Gump", correct: true },
+              { text: "Bubba", correct: false },
+              { text: "Lieutenant Dan", correct: false },
+            ],
+          },
+          {
+            question: "Who directed the movie 'Pulp Fiction'?",
+            answers: [
+              { text: "Steven Spielberg", correct: false },
+              { text: "Quentin Tarantino", correct: true },
+              { text: "Martin Scorsese", correct: false },
+              { text: "James Cameron", correct: false },
+            ],
+          },
+          {
+            question: "What is the name of the ship in the movie 'Titanic'?",
+            answers: [
+              { text: "The Queen Mary", correct: false },
+              { text: "The Lusitania", correct: false },
+              { text: "The Britannic", correct: false },
+              { text: "The Titanic", correct: true },
+            ],
+          },
+          {
+            question: "Who played the character of Tony Stark in the movie 'Iron Man'?",
+            answers: [
+              { text: "Tom Cruise", correct: false },
+              { text: "Robert Downey Jr.", correct: true },
+              { text: "Brad Pitt", correct: false },
+              { text: "Leonardo DiCaprio", correct: false },
+            ],
+          },
+          {
+            question: "What is the name of the fictional African country in the movie 'Black Panther'?",
+            answers: [
+              { text: "Wakanda", correct: true },
+              { text: "Zamunda", correct: false },
+              { text: "Nigeria", correct: false },
+              { text: "Kenya", correct: false },
+            ],
+          },
+          {
+            question: "Who played the character of Jack Dawson in the movie 'Titanic'?",
+            answers: [
+              { text: "Tom Hanks", correct: false },
+              { text: "Brad Pitt", correct: false },
+              { text: "Leonardo DiCaprio", correct: true },
+              { text: "George Clooney", correct: false },
+            ],
+          },
+          {
+            question: "Who played the character of Michael Corleone in the movie 'The Godfather'?",
+            answers: [
+              { text: "Al Pacino", correct: true },
+              { text: "Robert De Niro", correct: false },
+              { text: "Marlon Brando", correct: false },
+              { text: "John Travolta", correct: false },
+            ],
+          },
+          {
+            question: "What is the name of the robot in the movie 'Wall-E'?",
+            answers: [
+              { text: "EVE", correct: false },
+              { text: "R2-D2", correct: false },
+              { text: "WALL-E", correct: true },
+              { text: "C-3PO", correct: false },
+            ],
+          },
+        ];
+        
+        // Define a variable to keep track of the current question
+        let currentQuestion = 0;
+        
+        // Define a variable to keep track of the user's score
+        let score = 0;
+        
+        // Define a function to load the current question and its possible answers
+        function loadQuestion() {
+          const questionElement = document.getElementById("question");
+          questionElement.innerText = quizQuestions[currentQuestion].question;
+        
+          const answersElement = document.getElementById("answers");
+          answersElement.innerHTML = "";
+          quizQuestions[currentQuestion].answers.forEach((answer) => {
+            const answerElement = document.createElement("div");
+            answerElement.classList.add("form-check");
+        
+            const inputElement = document.createElement("input");
+            inputElement.classList.add("form-check-input");
+            inputElement.type = "radio";
+            inputElement.name = "answer";
+            inputElement.value = answer.text;
+            inputElement.id = answer.text;
+        
+            const labelElement = document.createElement("label");
+            labelElement.classList.add("form-check-label");
+            labelElement.htmlFor = answer.text;
+            labelElement.innerText = answer.text;
+        
+            answerElement.appendChild(inputElement);
+            answerElement.appendChild(labelElement);
+            answersElement.appendChild(answerElement);
+          });
+        }
+        
+        // Define a function to check the user's answer and update the score
+        function checkAnswer() {
+          const answerElements = document.getElementsByName("answer");
+          answerElements.forEach((answerElement) => {
+            if (answerElement.checked) {
+              if (answerElement.value === quizQuestions[currentQuestion].answers.find((answer) => answer.correct).text) {
+                score++;
+              }
+              return;
+            }
+          });
+        }
+        
+        // Define a function to go to the next question or finish the quiz
+        function nextQuestion() {
+          checkAnswer();
+          currentQuestion++;
+          if (currentQuestion < quizQuestions.length) {
+            loadQuestion();
+          } else {
+            finishQuiz();
+          }
+        }
+        
+        // Define a function to show the user's score and a button to restart the quiz
+        function finishQuiz() {
+          const quizElement = document.getElementById("quiz");
+          quizElement.innerHTML = "";
+        
+          const scoreElement = document.createElement("h2");
+          scoreElement.innerText = `You scored ${score} out of ${quizQuestions.length}!`;
+          quizElement.appendChild(scoreElement);
+          
+          const discount = document.createElement("p")
+          if (score < 8){
+            discount.innerText = "Sorry you dont have discount."
+          }else {
+           
+            axios.post("/api/Discounts", {
+              DiscountCode: generateRandomString(8)  ,
+              Status: "active"          
+            }).then((res) => {
+             
+             const discountCode = document.createElement("p")
+             discountCode.innerText = "You discount code is "+ res.data.discountCode
+             quizElement.appendChild(discountCode)
+            })
+            discount.innerText = "You have got "+score/10 * 30 + " % Discount "
+          }
+                  
+          quizElement.appendChild(discount)
+          
+       
+          
+          function generateRandomString(length) {
+            let result = '';
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            for (let i = 0; i < length; i++) {
+              result += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            return result;
+          }
+          
+        }
+        
+        
+        // Load the first question
+        loadQuestion();
+        const nextButton = document.getElementById("next-button")
+        nextButton.addEventListener("click", () => {
+            nextQuestion()
+        })
+</script>

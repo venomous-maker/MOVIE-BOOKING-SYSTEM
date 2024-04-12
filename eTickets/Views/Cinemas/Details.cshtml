@@ -1,0 +1,139 @@
+﻿@model Cinema
+
+@{
+    ViewData["Title"] = "Details of the cinema";
+}
+<style>
+    body{
+        background-color: #edf1f5;
+        margin-top:20px;
+    }
+    .card {
+        margin-bottom: 30px;
+    }
+    .card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        word-wrap: break-word;
+        background-color: #fff;
+        background-clip: border-box;
+        border: 0 solid transparent;
+        border-radius: 0;
+    }
+    .card .card-subtitle {
+        font-weight: 300;
+        margin-bottom: 10px;
+        color: #8898aa;
+    }
+        
+    
+    		img {
+      			-webkit-user-drag: none;
+      			-moz-user-drag: none;
+      			-o-user-drag: none;
+      			user-drag: none;
+    		}
+    		img {
+    			pointer-events: none;
+    		}
+    		.movie_card{
+    			padding: 0 !important;
+    			width: 15rem;
+    			margin:14px; 
+    			border-radius: 10px;
+    			box-shadow: 0 3px 4px 0 rgba(0, 0, 0, 0.2), 0 4px 15px 0 rgba(0, 0, 0, 0.19);
+    		}
+    		.movie_card img{
+    			border-top-left-radius: 10px;
+    			border-top-right-radius: 10px;
+    			height: 20rem;
+    		}
+    		.movie_info{
+    			color: #5e5c5c;
+    		}
+    
+    		.movie_info i{
+    			font-size: 20px;
+    		}
+    		.card-title{
+    			width: 80%;
+    			height: 4rem;
+    		}
+    		.play_button{
+    			background-color: #ff3d49;
+       			position: absolute;
+    			width: 60px;
+    			height: 60px;
+    			border-radius: 50%;
+    			right: 20px;
+    			bottom: 111px;
+    			font-size: 27px;
+    			padding-left: 21px;
+    			padding-top: 16px;
+    			color: #FFFFFF;
+    			cursor: pointer;
+    		}
+</style>
+
+
+<div class="card">
+	<div class="card-body">
+		<h3 class="card-title">@Model.Name</h3>
+		<h6 class="card-subtitle">City: @Model.City, Zipcode: @Model.ZipCode</h6>
+		<div class="row">
+			<div class="col-lg-5 col-md-5 col-sm-6">
+				<div class="white-box text-center"><img src="@Model.Logo" class="img-responsive"></div>
+			</div>
+			<div class="col-lg-7 col-md-7 col-sm-6">
+				<h4 class="box-title mt-5">Cinema Description</h4>
+				<p>@Model.Description</p>
+            
+				<h3 class="box-title mt-5">Other Details</h3>
+				<ul class="list-unstyled">
+					<li><i class="fa fa-check text-success"></i>City:  @Model.City</li>
+					<li><i class="fa fa-check text-success"></i>Zipcode: @Model.ZipCode</li>
+					<li><i class="fa fa-check text-success"></i>Number Of Seats Available: @Model.NumberOfSeats</li>
+                
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+
+	 <div class="container mt-5">
+		 <h2 class="text-center">Movies</h2>
+		 <div class="row justify-content-center">
+			 @foreach (var movie in Model.MovieCinemas)
+			 {
+				 <div class="card movie_card">
+					 <img src="@movie.Movie.ImageURL" class="card-img-top" alt="...">
+					 <div class="card-body">
+						 <a asp-controller="Movies" asp-action="Details" asp-route-id="@movie.MovieId">
+							 <i class="fas fa-play play_button" data-toggle="tooltip" data-placement="bottom" title="Watch">
+							 </i></a>
+						 <h5 class="card-title">@movie.Movie.Name</h5>
+						 <span class="movie_info">@movie.Movie.MovieCategory</span>
+					 </div>
+				 </div>
+			 }
+		 </div>
+		 <div class="form-group">
+			 @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+			 {
+				 <a class="btn btn-outline-success float-right" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+			 }
+			 <a class="btn btn-outline-secondary" asp-action="Index">Show All</a>
+		 </div>
+	 </div>
+ 
+
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            var output = document.getElementById('LogoPreview');
+            output.src = $("#Logo").val();
+        })
+    </script>
+}

@@ -1,0 +1,182 @@
+﻿@using eTickets.Data.ViewModels;
+@model ShoppingCartVM
+
+@{
+    ViewData["Title"] = "Shopping cart summary";
+}
+
+<div class="row">
+    <div class="col-md-8 offset-2">
+    <div class="alert alert-danger" role="alert" id="alert" style="display: none;">
+      
+    </div>
+        <div class="text-center">
+            <h2>You shopping cart summary</h2>
+        </div>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Selected</th>
+                    <th>Movie</th>
+                    <th>Seats Taken</th>
+                    <th>Price</th>
+                    <th>Subtotal</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.ShoppingCart.ShoppingCartItems)
+                {
+                    <tr>
+                        <td class="align-middle">@item.Amount</td>
+                        <td class="align-middle">@item.Movie.Name</td>
+                        <td class="align-middle">@item.Seats </td>
+                        <td class="align-middle">@item.Movie.Price.ToString("c")</td>
+                        <td class="align-middle">@((item.Amount*item.Movie.Price).ToString("c"))</td>
+                        <td class="align-middle">
+                            <a class="text-danger" asp-controller="Orders" asp-action="RemoveItemFromShoppingCart"
+                               asp-route-id="@item.Movie.Id">
+                                <i class="bi bi-cart-dash">Remove</i>
+                            </a>
+                            |
+                            <a class="text-success" asp-controller="Orders" asp-action="AddItemToShoppingCart"
+                               asp-route-id="@item.Movie.Id" asp-route-seats="1">
+                                <i class="bi bi-cart-plus">Add</i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2"></td>
+                    <td><b>Total:</b></td> 
+                    <td id="totalAmount">
+                        @Model.ShoppingCartTotal.ToString("c")
+                    </td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+<div class="form-group row" id="promo">
+                <div class="col-md-4">
+                    <label for="DiscountCode">Enter Discount Code</label>
+                    <input type="text" class="form-control" id="DiscountCode" placeholder="Enter discount code"/>
+                </div>
+                <div class="col-md-2 mt-4">
+                    <button class="btn btn-dark" id="ConfirmCode">Confirm</button>
+                </div>
+            </div>
+        <div class="text-right">
+            
+            <div class="btn-group">
+                <div id="paypal-btn"></div>
+                <span style="padding:5px"></span>
+                
+                <a asp-controller="Discount" asp-action="Index" class="btn btn-link">Get Discount</a>
+                <a class="btn btn-outline-success" asp-controller="Movies" asp-action="Index">
+                    Add more items
+                </a>
+                <a class="btn btn-primary" asp-controller="Orders" asp-action="CompleteOrder">
+                    Complete Order
+                </a>
+            </div>
+        </div>
+        @* MODAL *@
+       
+    </div>
+</div>
+
+@section Scripts{
+
+    <script src="https://www.paypalobjects.com/api/checkout.js"></script>
+
+    <script>
+        const ConfirmCode = document.getElementById("ConfirmCode")
+        const DiscountCode = document.getElementById("DiscountCode")
+        // Get the totalAmount element
+        const totalAmountElement = document.getElementById("totalAmount");
+        const promo = document.getElementById("promo")   
+        const alert = document.getElementById("alert")   
+        
+        ConfirmCode.addEventListener("click", (e) => {
+            e.preventDefault()
+            
+            axios.get(`/api/Discounts/Confirm/${DiscountCode.value}`)
+            .then(async (res) => {
+                if (res.data === true){
+                    let total = @Model.ShoppingCartTotal
+                    let IntTotal = parseFloat(total)     
+                    let discountAmount = IntTotal * 0.7            
+                     // Update the value of the totalAmount element
+                    
+                    await axios.put(`/api/Discounts/${DiscountCode.value}`, {
+                        DiscountCode: DiscountCode.value, 
+                        Status: "inactive"                        
+                    })
+                    .then(async (res) => {
+                        console.log("Inside")
+                        console.log(await res)
+                    })
+                    totalAmountElement.innerHTML = "$"+discountAmount.toString()        
+                    promo.style.display = "none"         
+                    alert.style.display = "none"
+                }else{
+                    alert.style.display = "block"
+                    alert.innerText = "The discount code does not exist please try again"                    
+                }
+            })
+            .catch((e) => {
+                
+            })           
+            
+        })
+  
+        let _total = @Html.Raw(Model.ShoppingCartTotal);
+        
+        
+
+        
+        paypal.Button.render({
+            //Configure environment
+            env: 'sandbox',
+            client: {
+                sandbox: 'AcKRtgL4i68EZ2ZYuYUx3ilihAg2YhL5dtF_m19A8MjBWVOn6ewNS4M_uV8gA3xi98zTcUq38gUHbVFx'
+            },
+
+            //Customize button
+            locale: 'en_US',
+            style: {
+                size: 'small',
+                color: 'gold',
+                shape: 'pill'
+            },
+            commit: true,
+
+            //Set up a payment
+            payment: function (data, actions) {
+                return actions.payment.create({
+                    transactions: [{
+                        amount: {
+                            total: _total,
+                            currency: 'USD'
+                        }
+                    }]
+                });
+            },
+
+            //Execute the payment
+            onAuthorize: function (data, actions) {
+                return actions.payment.execute().then(function () {
+                    var url = '@Url.Action("CompleteOrder", "Orders", new { })';
+                    window.location.href = url;
+                });
+            }
+
+        }, '#paypal-btn')
+    </script>
+    <script>
+    
+    </script>
+}

@@ -1,0 +1,172 @@
+﻿@inject UserManager<ApplicationUser> UserManager;
+@{
+    string[] seatsArray = ViewBag.seatsArray;
+
+    int[] seats;
+    if (seatsArray.Length != 0)
+    {
+        seats = seatsArray.Where(s => !string.IsNullOrEmpty(s)).Select(int.Parse).ToArray();
+    }
+    else
+    {
+        seats = new int[] { };
+    }
+    
+
+
+
+}
+<div class="container">
+    <div class="card p-2">
+        <div class="card-header">
+            <p class="card-text">Select You seats</p>
+        </div>
+        <div class="card-body">
+            <form>
+                <div class="form-outline mb-4">
+                    <label>Number of seats</label>
+                    <input class="form-control" type="number" id="SeatsNum" min="0"/>
+                </div>
+               
+                
+                <p class="text-black-50">Time For Watching Movie: @ViewData["time"] Hrs</p>
+                <p class="text-black-50">Day: @ViewData["day"]</p>
+                <p>Total Number Of Seats: <b id="seats">@ViewData["seats"] </b>Remaining</p>
+                <!-- Email input -->
+                <div class="form-outline mb-4">
+                    <label class="form-label" for="SeatNumber">Select Seat Number</label>
+                    <select class="form-control" id="SeatNumber" multiple="multiple" required="required" >
+                        @for (int i = 1; i <= (int)ViewData["seats"]; i++)
+                        {
+                            
+                            if (!seats.Contains(i))
+                            {
+                                <option value="@i">@i</option>
+                            }
+                            
+                        }
+                    </select>
+                </div>
+                <a class="btn btn-success text-white" id="submit"
+                   asp-controller="Orders"
+                   asp-action="AddItemToShoppingCart" asp-route-id="@ViewData["id"]" asp-route-day="@ViewData["day"]" asp-route-time="@ViewData["time"]" asp-route-cinemaId="@ViewData["cinemaID"]" ><i class="bi bi-cart-plus"></i> Add to Cart (Price @ViewData["price"])</a>
+            </form>
+            
+        </div>
+    </div>
+   
+</div>
+
+<script>
+
+    const selectElement = document.getElementById("SeatNumber")
+    const selectedValues = [];
+    const submit = document.getElementById("submit")
+    var link = submit.href
+    const seatNumber = document.getElementById("SeatsNum")
+    //Store selected seats
+   const userId = "@UserManager.GetUserId(User)";
+   const movieId = "@ViewData["id"]";
+   const cinemaId = "@ViewData["cinemaID"]";
+   const time = "@ViewData["time"]";
+   const day  = "@ViewData["day"]";
+    // Retrieve the selected seats from local storage
+  const selectedSeats = JSON.parse(localStorage.getItem('selectedSeats'+userId));
+  
+  if (selectedSeats) {
+    
+    for (let i = 0; i < selectedSeats.length; i++) {
+      if (selectedSeats[i].cinemaId === cinemaId  ) {
+        const option = selectElement.querySelector(`option[value='${selectedSeats[i].seatNumber}']`);
+        option.style.display = 'none';
+      }
+    }
+    
+    const options = selectElement.querySelectorAll('option');
+    for (let i = 0; i < options.length; i++) {
+      if (options[i].style.display !== 'none') {
+        options[i].style.display = 'block';
+      }
+    }
+  }
+    
+    seatNumber.addEventListener("change", () => {
+        if (seatNumber.value < 0)
+        {
+            alert("Seat number cannot be less than 0")
+            seatNumber.value = 0
+        }else if (seatNumber.value > 10)
+        {
+            alert("You cannot book  over 10 seats! Please contact us for more info")
+            seatNumber.value = 10
+        }
+    })
+    
+    selectElement.addEventListener("change", function () {
+        
+           if (selectedValues.length > 10)
+           {
+               alert("The maximum seats to book is 10")
+               
+               
+           }else{
+                for (let i = 0; i < selectElement.options.length; i++) {
+                             const option = selectElement.options[i];
+                             
+                             // If the option is selected, add its value to the array
+                             if (option.selected) {
+                                 if (!selectedValues.includes(option.value))
+                                 {
+                                     if (selectedValues.length != seatNumber.value) {
+                                         selectedValues.push(option.value);
+                                     } else {
+                                         alert("You have exceeded the number of seats You have taken ! Kindly add more number of seats so as to book more seats ")
+                                    }
+                                 }                
+                             }
+                           }
+           }
+            let numb = document.getElementById("seats")
+            numb.innerText = (parseInt(@ViewData["seats"])- selectedValues.length).toString()
+            
+           
+           // Create a JavaScript object to store the selected seats
+           const selectedSeats = {
+               userId: userId,
+               movieId: movieId,
+               cinemaId: cinemaId,
+               time: time,
+               day: day,
+               seats: selectedValues
+           };
+           
+           // Store the selected seats in local storage
+           localStorage.setItem("selectedSeats"+userId, JSON.stringify(selectedSeats));            
+            // Do something with the selected values
+           submit.href = link+"&seats="+selectedValues.length+"&seat="+selectedValues.toString()
+        }) 
+        submit.addEventListener("click", () => {
+            
+        })
+        
+          
+        
+        if (selectedValues.length === 0){
+            
+            var btn = document.getElementById('submit'); 
+            btn.addEventListener('click',                 
+                function (e){
+                    if (selectedValues.length === 0) {
+                        alert('Please pick a seat');
+                        e.preventDefault()
+                    } else if (selectedValues.length != seatNumber.value) {
+                        alert("You have selected many seats! Please refresh the page and try again")
+                        e.preventDefault()
+                    }
+                
+            })
+        }        
+
+
+</script>
+

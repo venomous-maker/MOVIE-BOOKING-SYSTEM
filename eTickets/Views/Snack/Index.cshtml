@@ -1,0 +1,50 @@
+﻿@model IEnumerable<Snack>
+<style>
+  .checked {color: orange;}
+  h1{color:#fff}
+  img{border-radius:30px;padding-bottom:10px;}
+  p{padding-top:0px;font-style:italic;}
+  .flr{float:right}
+  .jumbotron {
+      padding: 2rem 1rem;
+      margin-bottom: 2rem;
+      background-image: linear-gradient(to right, rgb(205 231 38 / 12%), #f5b800);
+      border-radius: .3rem;
+      
+  }
+</style>
+<div class="jumbotron text-center">
+  <h1>Order You snacks here</h1>
+  <p>Best Food Best offers Just Scroll down...!!!</p>
+</div>
+<div class="container">
+  <h4>Best Foods available <i class="fa fa-map-marker" aria-hidden="true"></i>
+  </h4>
+  <br>
+  <div class="row">
+    @foreach (var snack in Model)
+    {
+      <div class="col-lg-4 col-md-4 col-sm-4">
+        <img src="@snack.SnackPhoto" class="img-fluid"/>
+        <h4>@snack.Name</h4>
+        <span class="fa fa-star checked"> </span>
+        <span class="fa fa-star checked"> </span>
+        <span class="fa fa-star checked"> </span>
+        <span class="fa fa-star checked"> </span>
+        <span class="fa fa-star"></span>
+        <span class="flr">(Delivery Reviews)</span>
+
+        <p>@snack.Review
+          <i class="fa fa-clock-o" aria-hidden="true"></i>
+
+        </p>
+        @* <a href="" class="btn btn-outline-primary">$ @snack.Price  Order Now</a> *@
+<a class="btn btn-outline-primary" id="submit"
+                   asp-controller="SnackOrder"
+                   asp-action="AddItemToShoppingCart" asp-route-id="@snack.Id" ><i class="bi bi-cart-plus"></i> Add to Cart (Price @snack.Price)</a>
+      </div>
+    }
+  </div>
+</div>
+
+@await Html.PartialAsync("_CreateItem", "Snack")

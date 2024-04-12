@@ -1,0 +1,69 @@
+﻿@model eTickets.Data.ViewModels.SnackVM
+@using eTickets.Data;
+ 
+@{
+    ViewData["Title"] = "Create a new Snack";
+}
+<div class="container">
+    <div class="col-md-8 offset-2">
+        <p>
+            <h4>Create a new Snack</h4>
+        </p>
+
+        <div class="row">
+            <div class="col-md-8 offset-2">
+                <form asp-action="Create">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label asp-for="Name" class="control-label"></label>
+                                <input asp-for="Name" class="form-control" />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="SnackPhoto" class="control-label"></label>
+                                <input asp-for="SnackPhoto" type="text" class="form-control" id="ImageURL" />
+                                <span asp-validation-for="SnackPhoto" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Review" class="control-label"></label>
+                                <input asp-for="Review" type="text" class="form-control" />
+                                <span asp-validation-for="Review" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Price" class="control-label"></label>
+                                <input asp-for="Price" type="number" class="form-control" />
+                                <span asp-validation-for="Price" class="text-danger"></span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+
+                    <div class="col-md-4 offset-4 text-center">
+                        <img width="100%" id="ImageUrlPreview" />
+                    </div>
+
+                    <div class="form-group">
+                        <input type="submit" value="Create" class="btn btn-outline-success float-right" />
+                        <a class="btn btn-outline-secondary" asp-action="Index">Show all</a>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div> 
+
+@section Scripts{ 
+    <script>
+        $("#ImageURL").on("change", function () {
+            var output = document.getElementById("ImageUrlPreview");
+            output.src = $(this).val();
+        })
+    </script>
+}

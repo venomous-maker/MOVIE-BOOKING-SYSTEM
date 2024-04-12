@@ -1,0 +1,109 @@
+﻿@model IEnumerable<Movie>
+
+@{
+    ViewData["Title"] = "List of Movies";
+}
+
+<div class="row py-2 pb-5 mb-4">
+    <div class="text-center text-nowrap">
+            <p class="text-primary  text-uppercase h3 text-monospace">Now Playing</p>
+        </div>
+        @foreach (var item in Model)
+        {
+            @if (DateTime.Now >= item.StartDate && DateTime.Now <= item.EndDate)
+            {
+                 
+                <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
+                    <!-- Card-->
+                    <div class="card rounded shadow-sm border-0 h-100">
+                        <div class="card-body p-4">
+                            <a asp-controller="Movies" asp-action="Details" asp-route-id="@item.Id">
+                                <img src="@item.ImageURL" alt="" class="img-fluid d-block mx-auto mb-3">
+                            </a>
+                            <div class="d-flex justify-content-between">
+                                <h5 class="text-monospace text-dark"><b> @item.Name</b></h5>
+                                @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                                {
+                                    <a class="btn btn-link" asp-controller="Movies" asp-action="Edit" asp-route-id="@item.Id"><i class="bi bi-pencil-square"></i>Edit</a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                
+            }
+    
+        }
+</div>
+
+<div class="row py-2">
+    <div class="text-center">
+        <p class="text-info text-uppercase h3 text-monospace text-nowrap">Coming Soon</p>
+    </div>
+    @foreach (var item in Model)
+    {
+        @if (DateTime.Now <= item.StartDate)
+        {
+            <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
+                <!-- Card-->
+                <div class="card rounded shadow-sm border-0 h-100">
+                    <div class="card-body p-4">
+                        <a asp-controller="Movies" asp-action="Details" asp-route-id="@item.Id">
+                            <img src="@item.ImageURL" alt="" class="img-fluid d-block mx-auto mb-3">
+                        </a>
+                        <div class="d-flex justify-content-between">
+                            <h5 class="text-monospace text-dark"><b> @item.Name</b></h5>
+                            @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                            {
+                                <a asp-controller="Movies" asp-action="Edit" asp-route-id="@item.Id"><i class="bi bi-pencil-square"></i>Edit</a>
+                            }
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        }
+
+    }
+</div>
+
+@* <div class="row"> *@
+    @*     @foreach (var item in Model) *@
+    @*     { *@
+    @*         <div class="col-md-3 col-xs-6 border-primary mb-3"> *@
+    @*             <div class="card mb-3" style="max-width: 540px;"> *@
+    @*                 <div class="row g-0"> *@
+    @*                     <div class="col-md-12"> *@
+    @*                         <div class="card-header text-white bg-info"> *@
+    @*                             <p class="card-text"> *@
+    @*                                 <h5 class="card-title"> *@
+    @*                                     @item.Name *@
+    @*                                     @if (User.Identity.IsAuthenticated && User.IsInRole("Admin")) *@
+    @*                                     { *@
+    @*                                         <a class="text-white float-right" asp-action="Edit" asp-route-id="@item.Id"><i class="bi bi-pencil-square"></i></a> *@
+    @*                                     } *@
+    @*                                 </h5> *@
+    @*                             </p> *@
+    @*                         </div> *@
+    @*                     </div> *@
+    @*                     <div class="col-md-12"> *@
+    @*                         <a asp-action="Details" asp-route-id="@item.Id"> *@
+    @*                             <img src="@item.ImageURL" width="100%" alt="@item.Name" class="img-thumbnail" style="height: 300px; width: 330px;"> *@
+    @*                         </a> *@
+    @* *@
+    @*                     </div> *@
+    @* *@
+    @* *@
+    @* *@
+    @*                 </div> *@
+    @*             </div> *@
+    @*         </div> *@
+    @*     } *@
+    @* </div> *@
+
+
+            
+
+@await Html.PartialAsync("_CreateItem", "Movies")
+

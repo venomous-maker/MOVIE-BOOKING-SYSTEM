@@ -1,0 +1,185 @@
+﻿@using eTickets.Data.ViewModels; 
+@model RegisterVM;
+
+@{ 
+    ViewData["Title"] = "Sign up for a new account";
+}
+<style>
+  .gradient-custom-2 {
+  /* fallback for old browsers */
+  background: #fccb90;
+  
+  /* Chrome 10-25, Safari 5.1-6 */
+  background: -webkit-linear-gradient(to right, #ee7724, #d8363a, #dd3675, #b44593);
+  
+  /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  background: linear-gradient(to right, #ee7724, #d8363a, #dd3675, #b44593);
+  }
+</style>
+
+
+<section class="h-100 gradient-form" style="background-color: #eee;">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-xl-10">
+          <div class="card rounded-3 text-black">
+              @if(TempData["Error"] != null)
+              {
+                  <div class="col-md-12 alert alert-danger">
+                      <span><b>Sorry!</b> - @TempData["Error"] </span>
+                  </div>
+              }
+              <div class="row g-0">
+                  <div class="col-lg-6">
+                      <div class="card-body p-md-5 mx-md-4">
+
+
+                          <div class="text-center">
+                              <img src="https://www.shutterstock.com/shutterstock/photos/739876768/display_1500/stock-vector-two-cinema-vector-tickets-isolated-on-white-background-realistic-front-view-illustration-739876768.jpg"
+                                   style="width: 185px;" alt="logo">
+                              <h4 class="mt-1 mb-5 pb-1 text-monospace">Movie Tickets </h4>
+                          </div>
+
+                          <form asp-action="Register">
+                               <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                              <p>Register an account with us</p>
+
+                              <div class="form-outline mb-4">
+                                  <label asp-for="FullName" class="control-label"></label>
+                                 <input asp-for="FullName" class="form-control" />
+                                 <span asp-validation-for="FullName" class="text-danger"></span>
+                                                         
+                              </div>
+
+                              <div class="form-outline mb-4">
+                                     <label asp-for="EmailAddress" class="control-label"></label>
+                                                          <input asp-for="EmailAddress" class="form-control" />
+                                                          <span asp-validation-for="EmailAddress" class="text-danger"></span>
+                              </div>
+                              <div class="form-outline mb-4">
+                                  <label asp-for="PhoneNumber" class="control-label"></label>
+                                                          <input asp-for="PhoneNumber" class="form-control" id="phonenumber" />
+                                                          <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                              </div>
+                              <div class="form-outline mb-4" id="otp-verification-form" style="display: none;">
+                                 <label>Otp</label>
+                                                         <input type="number" class="form-control" id="otp-input" />
+                                                         <button class="btn btn-sm btn-primary" id="verify-otp-button" type="button">Verify</button>
+                              </div>
+                              <div class="form-outline mb-4">
+                                  <label asp-for="Password" class="control-label"></label>
+                                  <input asp-for="Password" class="form-control" />
+                                  <span asp-validation-for="Password" class="text-danger"></span>
+                              </div>
+                              <div class="form-outline mb-4">
+                                   <label asp-for="ConfirmPassword" class="control-label"></label>
+                                                          <input asp-for="ConfirmPassword" class="form-control" />
+                                                          <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                              </div>
+                              
+                           
+                                <div class="text-center pt-1 mb-5 pb-1">
+                                  <button class="btn btn-primary btn-block fa-lg gradient-custom-2 mb-3" type="submit">Register</button>
+                                 
+                              </div>
+                              <div class="d-flex align-items-center justify-content-center pb-4">
+                                  <p class="mb-0 me-2">Already Have an account, </p>
+                                  <a asp-controller="Account" asp-action="Login" class="btn btn-outline-danger">Login</a>
+                              </div>
+
+                          </form>
+
+                      </div>
+                  </div>
+                  <div class="col-lg-6 d-flex align-items-center gradient-custom-2">
+                      <div class="text-white px-3 py-4 p-md-5 mx-md-4">
+                          <h4 class="mb-4">We are more than just a Movie company</h4>
+                          <p class="small mb-0">Welcome to the best selling site in the internet</p>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+@section Scripts
+{
+    <script>
+    document.getElementById("submit").disabled = true
+        $("#phonenumber").on("change", async () => {
+             
+            let phoneNumber = document.getElementById('phonenumber').value
+             let verifyBtn = document.getElementById("verify-otp-button")
+           
+           async function SendOtp(secret, type, phone, mode) {
+             
+               let data = {
+                   "secret": secret,
+                   "type": type,
+                   "mode": mode,
+                   "phone": phone,
+                   "message": "Your otp is {{otp}}",
+                   "expire": 300,
+                   "gateway": 4
+           
+               }
+               return await axios({
+                   url: "https://sms.genius.ke/api/send/otp",
+                   method: "post",
+                   params: data
+               })
+                   .then((res) => {
+                       return res.data
+                   })
+                   .catch(e => console.log(e))
+           }
+           let res = await SendOtp("680a8f3796bdec685b537cde0a6749f209c82d5f", "sms", phoneNumber, "credits")
+           let message = document.getElementById("message")
+           if (res.status === 200){
+               message.classList.add("alert-success")
+               message.innerHTML = res.message
+           }else{
+               message.classList.add("alert-danger")
+               message.innerHTML = res.message               
+           }
+           
+           let otp = prompt("Enter the otp sent to "+phoneNumber);            
+            verifyOTP(otp)
+            
+           
+            verifyBtn.addEventListener("click", (e) => {
+                 let otpInput = document.getElementById("otp-input").value
+                e.preventDefault()
+                verifyOTP(otpInput)                
+            })
+            
+            
+            function verifyOTP(sentOTP){
+                fetch("https://sms.genius.ke/api/get/otp?secret=680a8f3796bdec685b537cde0a6749f209c82d5f&otp=" + sentOTP)
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.status === 200)
+                                    {
+                                       document.getElementById("submit").disabled = false
+                                       document.getElementById("otp-verification-form").style.display = "none"
+                                        message.classList.add("alert-success")
+                                        message.innerHTML = "OTP Verified"
+                                    }else 
+                                    {
+                                        // alert("Invalid otp please try again");    
+                                        document.getElementById("submit").disabled = true
+                                        document.getElementById("otp-verification-form").style.display = "block"
+                                        message.classList.add("alert-danger")
+                                        message.innerHTML = data.message
+                                        
+                                    }
+                                });
+                }
+            
+            
+        }
+    )
+    </script>
+}

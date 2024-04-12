@@ -1,0 +1,75 @@
+﻿@model IEnumerable<Cinema>
+
+@{
+    ViewData["Title"] = "List of Cinemas";
+}
+<style>
+    .wrapper {
+      padding: 100px;
+    }
+    
+    .image--cover {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      margin: 20px;
+    
+      object-fit: cover;
+      object-position: center right;
+    }
+</style>
+
+
+
+<div class="container mt-4">
+    <div class="card mb-4">
+        <div class="card-body">
+            <!--Table-->
+            <table class="table table-hover">
+                <!--Table head-->
+                <thead class="mdb-color darken-3">
+                    <tr class="bg-dark text-white">
+                        <th>#</th>
+                        <th>CinemaLogo</th>
+                        <th>Cinema Name</th>
+                        <th>Description</th>
+                        <th>City</th>
+                        <th>Zip Code</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <!--Table head-->
+                <!--Table body-->
+                <tbody>
+                @foreach (var cinema in Model)
+                {
+                    <tr>
+                        <th scope="row">@cinema.Id</th>
+                        <td><img src="@cinema.Logo" class="image--cover" alt=""/></td>
+                        <td>@cinema.Name</td>
+                        <td>@cinema.Description</td>
+                        <td>@cinema.City</td>
+                        <td>@cinema.ZipCode</td>
+                         @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                         {
+                             <td>
+                                 <a class="btn btn-primary btn-sm" asp-action="Edit" asp-route-id="@cinema.Id"><i class="bi bi-pencil-square"></i>Edit </a> |
+                                 <a class="btn btn-info btn-sm" asp-action="Details" asp-route-id="@cinema.Id"><i class="bi bi-eye"></i>Details </a> |
+                                 <a class="btn btn-danger text-white btn-sm" asp-action="Delete" asp-route-id="@cinema.Id"><i class="bi bi-trash"></i>Delete </a>
+                             </td>
+                         }
+                    </tr>
+                }
+                
+
+                </tbody>
+                <!--Table body-->
+            </table>
+            <!--Table-->
+        </div>
+    </div>
+
+</div>
+
+
+@await Html.PartialAsync("_CreateItem", "Cinemas") 
